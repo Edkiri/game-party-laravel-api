@@ -64,7 +64,7 @@ class AuthController extends Controller
                 'password' => 'required',
             ]);
             if ($validator->fails()) {
-                return response()->json($validator->errors(), 400);
+                return response()->json($validator->errors(), Response::HTTP_BAD_REQUEST);
             }
             $validData = $validator->validated();
 
