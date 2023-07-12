@@ -22,6 +22,7 @@ class User extends Authenticatable
         'steam_username',
         'email',
         'password',
+        'role_id'
     ];
 
     protected $hidden = [

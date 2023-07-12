@@ -15,8 +15,8 @@ return new class extends Migration
             $table->id();
             $table->string('email')->unique();
             $table->string('password');
-            $table->string('username');
-            $table->string('steam_username');
+            $table->string('username')->unique();
+            $table->string('steam_username')->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->rememberToken();
             $table->timestamps();
