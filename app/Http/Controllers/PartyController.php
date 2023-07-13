@@ -43,7 +43,53 @@ class PartyController extends Controller
                 'success' => true,
                 'data' => [
                     'party' => $newParty,
-                    'membsership' => $newMembership,
+                    'membership' => $newMembership,
+                ]
+            ], Response::HTTP_CREATED);
+        } catch (\Throwable $th) {
+            Log::error('Error while register user' . $th->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'message' => $th->getMessage()
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+    public function join($partyId)
+    {
+        try {
+            $userId = auth()->user()->id;
+
+            $party = Party::find($partyId);
+            if (!$party) {
+                return response()->json([
+                    'success' => false,
+                    'message' => "Party with id '" . $partyId . "' not found"
+                ], Response::HTTP_NOT_FOUND);
+            }
+
+            $oldMembership = Membership::where([
+                ['user_id', $userId],
+                ['party_id', $partyId],
+            ])->first();
+
+            if($oldMembership) {
+                return response()->json([
+                    'success' => false,
+                    'message' => "User is already member of this party"
+                ], Response::HTTP_BAD_REQUEST);
+            }
+
+            $newMembership = Membership::create([
+                'user_id' => $userId,
+                'party_id' => $party->id,
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'party' => $party,
+                    'membership' => $newMembership,
                 ]
             ], Response::HTTP_CREATED);
         } catch (\Throwable $th) {
