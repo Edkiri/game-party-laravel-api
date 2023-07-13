@@ -61,6 +61,7 @@ class PartyController extends Controller
             $userId = auth()->user()->id;
 
             $party = Party::find($partyId);
+
             if (!$party) {
                 return response()->json([
                     'success' => false,
@@ -73,7 +74,7 @@ class PartyController extends Controller
                 ['party_id', $partyId],
             ])->first();
 
-            if($oldMembership) {
+            if ($oldMembership) {
                 return response()->json([
                     'success' => false,
                     'message' => "User is already member of this party"
@@ -92,6 +93,34 @@ class PartyController extends Controller
                     'membership' => $newMembership,
                 ]
             ], Response::HTTP_CREATED);
+        } catch (\Throwable $th) {
+            Log::error('Error while register user' . $th->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'message' => $th->getMessage()
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public function getMembers($partyId)
+    {
+        try {
+            $members = Membership::where('party_id', $partyId)->with('user')->get();
+
+            if (!$members) {
+                return response()->json([
+                    'success' => false,
+                    'message' => "Party with id '" . $partyId . "' not found"
+                ], Response::HTTP_NOT_FOUND);
+            }
+
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'members' => $members,
+                ]
+            ], Response::HTTP_OK);
         } catch (\Throwable $th) {
             Log::error('Error while register user' . $th->getMessage());
 
