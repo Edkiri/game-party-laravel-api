@@ -55,6 +55,7 @@ class PartyController extends Controller
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
+
     public function join($partyId)
     {
         try {
@@ -93,6 +94,45 @@ class PartyController extends Controller
                     'membership' => $newMembership,
                 ]
             ], Response::HTTP_CREATED);
+        } catch (\Throwable $th) {
+            Log::error('Error while register user' . $th->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'message' => $th->getMessage()
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+    public function exit($partyId)
+    {
+        try {
+            $userId = auth()->user()->id;
+
+            $membership = Membership::where([
+                ['user_id', $userId],
+                ['party_id', $partyId],
+            ])->first();
+
+            if (!$membership) {
+                return response()->json([
+                    'success' => false,
+                    'message' => "You do not have permissions to perform this action"
+                ], Response::HTTP_BAD_REQUEST);
+            }
+
+            if ($membership->is_owner) {
+                return response()->json([
+                    'success' => false,
+                    'message' => "Owner user can not exit his party"
+                ], Response::HTTP_BAD_REQUEST);
+            }
+
+            $membership->delete();
+
+            return response()->json([
+                'success' => true,
+                'data' => []
+            ], Response::HTTP_NO_CONTENT);
         } catch (\Throwable $th) {
             Log::error('Error while register user' . $th->getMessage());
 
