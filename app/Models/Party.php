@@ -19,6 +19,11 @@ class Party extends Model
         return $this->hasMany(Membership::class);
     }
 
+    public function messages()
+    {
+        return $this->hasMany(Message::class);
+    }
+
     protected $fillable = [
         'name',
         'game_id'
