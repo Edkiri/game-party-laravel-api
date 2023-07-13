@@ -9,6 +9,11 @@ class Party extends Model
 {
     use HasFactory;
 
+    public function game()
+    {
+        return $this->belongsTo(Game::class);
+    }
+
     public function memberships()
     {
         return $this->hasMany(Membership::class);

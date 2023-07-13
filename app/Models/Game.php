@@ -9,6 +9,11 @@ class Game extends Model
 {
     use HasFactory, HasFactory;
 
+    public function party()
+    {
+        return $this->hasMany(Party::class);
+    }
+
     protected $fillable = [
         'title',
         'img_url',

@@ -130,4 +130,39 @@ class PartyController extends Controller
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
+
+    public function listParties(Request $req)
+    {
+        try {
+            $gameId = $req->gameId;
+            $gameTitle = $req->gameTitle;
+
+            $parties = Party::query();
+
+            if ($gameId) {
+                $parties->where('game_id', $gameId);
+            }
+            if ($gameTitle) {
+                $parties->whereHas('game', function ($query) use ($gameTitle) {
+                    $query->where('title', 'like', '%' . $gameTitle . '%');
+                });
+            }
+
+            $parties = $parties->with('game')->get();
+
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'parties' => $parties,
+                ]
+            ], Response::HTTP_OK);
+        } catch (\Throwable $th) {
+            Log::error('Error while register user' . $th->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'message' => $th->getMessage()
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
 }
